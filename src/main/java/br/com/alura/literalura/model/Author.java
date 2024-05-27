@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "autores")
@@ -64,18 +65,26 @@ public class Author {
         return books;
     }
 
-    public void setBooks(List<Book> books) {
-        books.forEach(b -> b.setAuthor(this));
-        this.books = books;
+    public void addBooks(Book book) {
+        book.setAuthor(this);
+        this.books.add(book);
+    }
+
+    public void setBooks(Book book) {
+        this.books.add(book);
     }
 
     @Override
     public String toString() {
+        String livrosStr = books.stream()
+                .map(Book::getTitulo)
+                .collect(Collectors.joining(", "));
+
         return  "\n++++++++++ Autor +++++++++" +
                 "\nNome: " + nome +
                 "\nAno de Nascimento: " + anoDeNascimento +
                 "\nAno de Falecimento: " + anoDeFalecimento +
-                "\nLivros: " + books + //buscar sintaxe para mostrar títulos
+                "\nLivros: " + livrosStr +
                 "\n+++++++++++++++++++++++++++\n";
     }
 }

@@ -4,12 +4,12 @@ import br.com.alura.literalura.model.Author;
 import br.com.alura.literalura.model.Book;
 import br.com.alura.literalura.model.BookData;
 import br.com.alura.literalura.model.GeneralData;
-import br.com.alura.literalura.repository.AuthorRepository;
-import br.com.alura.literalura.repository.BookRepository;
+import br.com.alura.literalura.service.BookService;
 import br.com.alura.literalura.service.ConsumoApi;
 import br.com.alura.literalura.service.ConverteDados;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -19,9 +19,14 @@ public class Principal {
     private ConsumoApi consumoApi = new ConsumoApi();
     private ConverteDados conversor = new ConverteDados();
     private Scanner leitura = new Scanner(System.in);
-    private BookRepository bookRepository;
-    private AuthorRepository authorRepository;
+    private BookService bookService = new BookService();
+    private Book book = new Book();
+    private List<Book> livros = new ArrayList<>();
+    private List<Author> autores = new ArrayList<>();
 
+    public Principal(BookService bookService) {
+        this.bookService = bookService;
+    }
 
     public void exibeMenu() {
         var opcao = -1;
@@ -31,9 +36,9 @@ public class Principal {
                                         
                     1 - Buscar livro pelo título
                     2 - Listar livros registrados
-                    4 - Listar autores registrados
-                    5 - Listar autores vivos em determinado ano
-                    6 - Listar livros em um determinado idioma
+                    3 - Listar autores registrados
+                    4 - Listar autores vivos em determinado ano
+                    5 - Listar livros em um determinado idioma
                                     
                     0 - Sair                                 
                     """;
@@ -80,9 +85,9 @@ public class Principal {
         bookData = dados.livros();
 
         //pega o primeiro item da lista de livros devolvida (alguns títulos têm vários itens)
-        Book book = new Book(bookData.get(0));
+        book = new Book(bookData.get(0));
         System.out.println(book);
-        bookRepository.save(book);
+
 
         //mostra dados autor e livros
         List<Author> autores = bookData.stream()
@@ -92,20 +97,42 @@ public class Principal {
                 ).collect(Collectors.toList());
 
         autores.forEach(System.out::println);
-        Author autor = autores.get(0);
-        authorRepository.save(autor);
-
+        Author author = autores.get(0);
+        System.out.println(author.getBooks());
+        book.setAuthor(author);
+        bookService.salvarLivro(book);
     }
 
     private void listarLivrosRegistrados() {
+        livros = bookService.findAll();
+        livros.stream()
+                .sorted(Comparator.comparing(Book::getNomeAutor))
+                .forEach(System.out::println);
     }
 
     private void listarAutoresRegistrados() {
+        autores = bookService.findAllAuthor();
+        autores.stream()
+                .sorted(Comparator.comparing(Author::getNome))
+                .forEach(System.out::println);
     }
 
     private void listarAutoresVivosData() {
+        System.out.println("Informe o ano de referência: ");
+        var anoInformado = leitura.nextInt();
+        autores = bookService.autorVivoNoAno(anoInformado);
+        autores.stream()
+                .sorted(Comparator.comparing(Author::getNome))
+                .forEach(System.out::println);
     }
 
     private void listarLivrosEmIdioma() {
+        System.out.println("Informe o idioma: " +
+                "\nPortuguês: pt" +
+                "\nInglês: en");
+        var idiomaBuscado = leitura.nextLine();
+        Integer ocorrencias = bookService.contaLivrosEmIdioma(idiomaBuscado);
+        System.out.println("\n+++ Tem " + ocorrencias + " livro(s) no idioma " + idiomaBuscado);
     }
+
 }
