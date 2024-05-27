@@ -85,22 +85,25 @@ public class Principal {
         bookData = dados.livros();
 
         //pega o primeiro item da lista de livros devolvida (alguns títulos têm vários itens)
-        book = new Book(bookData.get(0));
-        System.out.println(book);
+        try {
+            book = new Book(bookData.get(0));
+            System.out.println(book);
 
+            //mostra dados autor e livros
+            List<Author> autores = bookData.stream()
+                    .limit(1)
+                    .flatMap(b -> b.autor().stream()
+                            .map(d -> new Author(b.titulo(), d))
+                    ).collect(Collectors.toList());
 
-        //mostra dados autor e livros
-        List<Author> autores = bookData.stream()
-                .limit(1)
-                .flatMap(b -> b.autor().stream()
-                        .map(d -> new Author(b.titulo(), d))
-                ).collect(Collectors.toList());
-
-        autores.forEach(System.out::println);
-        Author author = autores.get(0);
-        System.out.println(author.getBooks());
-        book.setAuthor(author);
-        bookService.salvarLivro(book);
+            autores.forEach(System.out::println);
+            Author author = autores.get(0);
+            System.out.println(author.getBooks());
+            book.setAuthor(author);
+            bookService.salvarLivro(book);
+        } catch (Exception e) {
+            System.out.println("\n+++Livro não encontrado\n");
+        }
     }
 
     private void listarLivrosRegistrados() {
@@ -132,7 +135,7 @@ public class Principal {
                 "\nInglês: en");
         var idiomaBuscado = leitura.nextLine();
         Integer ocorrencias = bookService.contaLivrosEmIdioma(idiomaBuscado);
-        System.out.println("\n+++ Tem " + ocorrencias + " livro(s) no idioma " + idiomaBuscado);
+        System.out.println("\n+++ Tem " + ocorrencias + " livro(s) no idioma " + idiomaBuscado + "\n");
     }
 
 }
