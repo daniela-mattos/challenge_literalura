@@ -62,4 +62,8 @@ public class BookService {
     public Integer contaLivrosEmIdioma(String idiomaBuscado) {
         return (int) bookRepository.contaLivrosEmIdioma(idiomaBuscado);
     }
+
+    public List<Book> listaDeLivrosPorIdioma(String idioma) {
+        return bookRepository.findBookByIdioma(idioma);
+    }
 }

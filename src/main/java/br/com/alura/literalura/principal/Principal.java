@@ -61,7 +61,7 @@ public class Principal {
                     listarAutoresVivosData();
                     break;
                 case 5:
-                    listarLivrosEmIdioma();
+                    contarLivrosDoIdioma();
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -98,7 +98,7 @@ public class Principal {
 
             autores.forEach(System.out::println);
             Author author = autores.get(0);
-            System.out.println(author.getBooks());
+
             book.setAuthor(author);
             bookService.salvarLivro(book);
         } catch (Exception e) {
@@ -129,13 +129,45 @@ public class Principal {
                 .forEach(System.out::println);
     }
 
-    private void listarLivrosEmIdioma() {
+    private void contarLivrosDoIdioma() {
         System.out.println("Informe o idioma: " +
                 "\nPortuguês: pt" +
-                "\nInglês: en");
+                "\nInglês: en" +
+                "\nEspanhol: es" +
+                "\nItaliano: it");
         var idiomaBuscado = leitura.nextLine();
         Integer ocorrencias = bookService.contaLivrosEmIdioma(idiomaBuscado);
-        System.out.println("\n+++ Tem " + ocorrencias + " livro(s) no idioma " + idiomaBuscado + "\n");
+
+        var traduzido = traduzIdioma(idiomaBuscado);
+
+        if(ocorrencias == 0) {
+            System.out.println("Não há ocorrência de livros neste idioma: " + traduzido + ". ");
+        } if(ocorrencias == 1) {
+            System.out.println("\n+++ Tem uma ocorrência em " + traduzido + "\n");
+        } else {
+            System.out.println("\n+++ Tem " + ocorrencias + " livros em " + traduzido + "\n");
+        }
+        listarLivrosEmIdioma(idiomaBuscado);
+    }
+
+    private void listarLivrosEmIdioma(String idioma) {
+        livros  = bookService.listaDeLivrosPorIdioma(idioma);
+        livros.forEach(System.out::println);
+    }
+
+    private String traduzIdioma(String idioma) {
+        var traduz = "";
+        switch (idioma) {
+            case "pt": traduz = "Português";
+            break;
+            case "en": traduz = "Inglês";
+            break;
+            case "es": traduz = "Espanhol";
+            break;
+            case "it": traduz = "Italiano";
+            break;
+        }
+        return traduz;
     }
 
 }

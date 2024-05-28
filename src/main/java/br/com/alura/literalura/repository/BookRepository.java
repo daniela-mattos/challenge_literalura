@@ -15,4 +15,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT COUNT(b) FROM Book b WHERE b.idioma LIKE %:idioma%")
     long contaLivrosEmIdioma(String idioma);
 
+    List<Book> findBookByIdioma(String idioma);
 }
